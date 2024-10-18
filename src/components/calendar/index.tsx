@@ -1,10 +1,11 @@
 import React from 'react';
-import { Calendar as AntdCalendar, Badge } from 'antd';
+import { Calendar as AntdCalendar, Badge, Button } from 'antd';
 import type { CalendarProps } from 'antd';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
 import { HolidayUtil, Lunar } from 'lunar-typescript';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useStyle } from './utils';
 
 const Calendar: React.FC = () => {
@@ -24,7 +25,20 @@ const Calendar: React.FC = () => {
     }
   };
 
-  const cellRender: CalendarProps<Dayjs>['fullCellRender'] = (date, info) => {
+  const monthCellRender = (date: Dayjs) => {
+    const d2 = Lunar.fromDate(new Date(date.get('year'), date.get('month')));
+    const month = d2.getMonthInChinese();
+    return (
+      <div
+        className={classNames(styles.monthCell, {
+          [styles.monthCellCurrent]: selectDate.isSame(date, 'month'),
+        })}
+      >
+        {date.get('month') + 1}月（{month}月）
+      </div>
+    );
+  };
+  const dateCellRender: CalendarProps<Dayjs>['fullCellRender'] = (date, info) => {
     const d = Lunar.fromDate(date.toDate());
     const lunar = d.getDayInChinese();
     const solarTerm = d.getJieQi();
@@ -37,51 +51,77 @@ const Calendar: React.FC = () => {
       [styles.isOvertime]: h?.isWork(),
     });
 
-    if (info.type === 'date') {
-      return React.cloneElement(info.originNode, {
-        ...info.originNode.props,
-        className: classNames(styles.dateCell, {
-          [styles.current]: selectDate.isSame(date, 'date'),
-          [styles.today]: date.isSame(dayjs(), 'date'),
-        }),
-        children: (
-          <div className={styles.text}>
-            <Badge count={badgeCount} offset={[16, 3]} size="small" className={badgeClasses}>
-              <span
-                className={classNames({
-                  [styles.weekend]: isWeekend,
-                  gray: !panelDateDate.isSame(date, 'month'),
+    return React.cloneElement(info.originNode, {
+      ...info.originNode.props,
+      className: classNames(styles.dateCell, {
+        [styles.current]: selectDate.isSame(date, 'date'),
+        [styles.today]: date.isSame(dayjs(), 'date'),
+      }),
+      children: (
+        <div className={styles.text}>
+          <Badge count={badgeCount} offset={[10, 1]} size="small" className={badgeClasses}>
+            <span
+              className={classNames({
+                [styles.weekend]: isWeekend,
+                [styles.gray]: !panelDateDate.isSame(date, 'month'),
+              })}
+            >
+              {date.get('date')}
+            </span>
+            {info.type === 'date' && (
+              <div
+                className={classNames(styles.lunar, {
+                  [styles.gray]: !panelDateDate.isSame(date, 'month'),
                 })}
               >
-                {date.get('date')}
-              </span>
-              {info.type === 'date' && <div className={styles.lunar}>{displayHoliday || solarTerm || lunar}</div>}
-            </Badge>
-          </div>
-        ),
-      });
-    }
-
-    if (info.type === 'month') {
-      // Due to the fact that a solar month is part of the lunar month X and part of the lunar month X+1,
-      // when rendering a month, always take X as the lunar month of the month
-      const d2 = Lunar.fromDate(new Date(date.get('year'), date.get('month')));
-      const month = d2.getMonthInChinese();
-      return (
-        <div
-          className={classNames(styles.monthCell, {
-            [styles.monthCellCurrent]: selectDate.isSame(date, 'month'),
-          })}
-        >
-          {date.get('month') + 1}月（{month}月）
+                {displayHoliday || solarTerm || lunar}
+              </div>
+            )}
+          </Badge>
         </div>
-      );
-    }
+      ),
+    });
+  };
+
+  const cellRender: CalendarProps<Dayjs>['fullCellRender'] = (date, info) => {
+    if (info.type === 'date') return dateCellRender(date, info);
+    if (info.type === 'month') return monthCellRender(date);
+    return info.originNode;
+  };
+
+  const headerRender: CalendarProps<Dayjs>['headerRender'] = ({ value, type, onChange }) => {
+    const currentYear = value.format('YYYY年');
+    const currentMonth = value.format('M月');
+    const next = () => {
+      const newValue = value.clone().add(1, type === 'year' ? 'year' : 'months');
+      onChange(newValue);
+    };
+    const prev = () => {
+      const newValue = value.clone().subtract(1, type === 'year' ? 'year' : 'months');
+      onChange(newValue);
+    };
+
+    return (
+      <div className={styles.header}>
+        <Button size="small" type="text" icon={<LeftOutlined />} onClick={() => prev()} />
+        <div>
+          <span>{currentYear} </span>
+          <span>{currentMonth}</span>
+        </div>
+        <Button size="small" type="text" icon={<RightOutlined />} onClick={() => next()} />
+      </div>
+    );
   };
 
   return (
     <div className={styles.wrapper}>
-      <AntdCalendar fullCellRender={cellRender} fullscreen={false} onPanelChange={onPanelChange} onSelect={onDateChange} />
+      <AntdCalendar
+        fullCellRender={cellRender}
+        fullscreen={false}
+        onPanelChange={onPanelChange}
+        onSelect={onDateChange}
+        headerRender={headerRender}
+      />
     </div>
   );
 };

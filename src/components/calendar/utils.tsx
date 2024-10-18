@@ -12,6 +12,10 @@ const useStyle = createStyles(({ token, css, cx }) => {
     }
   `;
 
+  const gray = css`
+    opacity: 0.4;
+  `
+
   // 是否调休
   const isRestAdjustment = css`
     .ant-badge-count {
@@ -19,7 +23,7 @@ const useStyle = createStyles(({ token, css, cx }) => {
       background: transparent;
       box-shadow: none;
     }
-  `
+  `;
 
   // 是否加班
   const isOvertime = css`
@@ -28,13 +32,20 @@ const useStyle = createStyles(({ token, css, cx }) => {
       background: transparent;
       box-shadow: none;
     }
-  `
+  `;
+
+  const header = css`
+    display: flex;
+    flex-direction: row;
+    align-item: center;
+    justify-content: space-between;
+  `;
 
   return {
     wrapper: css`
       width: 450px;
       border: 1px solid ${token.colorBorderSecondary};
-      border-radius: ${token.borderRadiusOuter};
+      border-radius: ${token.borderRadiusOuter}px;
       padding: 5px;
     `,
     dateCell: css`
@@ -47,11 +58,11 @@ const useStyle = createStyles(({ token, css, cx }) => {
         top: 0;
         bottom: 0;
         margin: auto;
-        max-width: 40px;
-        max-height: 40px;
+        width: 40px;
+        height: 40px;
         background: transparent;
         transition: background-color 300ms;
-        border-radius: ${token.borderRadiusOuter}px;
+        border-radius: 100%;
         border: 1px solid transparent;
         box-sizing: border-box;
       }
@@ -105,7 +116,9 @@ const useStyle = createStyles(({ token, css, cx }) => {
     `,
     weekend,
     isRestAdjustment,
-    isOvertime
+    isOvertime,
+    header,
+    gray,
   };
 });
 
