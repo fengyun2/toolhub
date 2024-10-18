@@ -6,7 +6,21 @@ const host = process.env.TAURI_DEV_HOST;
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
+  resolve: {
+    alias: [
+      {find: "@", replacement: "/src"},
+      {find: "components", replacement: "/src/components"},
+      {find: "pages", replacement: "/src/pages"},
+    ]
+  },
   plugins: [react()],
+  css: {
+    preprocessorOptions: {
+      less: {
+        javascriptEnabled: true,
+      },
+    }
+  },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
