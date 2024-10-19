@@ -1,6 +1,6 @@
 import { createStyles } from 'antd-style';
 
-const useStyle = createStyles(({ token, css, cx }) => {
+const useStyle = createStyles(({ token, css, cx, prefixCls }) => {
   const lunar = css`
     color: ${token.colorTextTertiary};
     font-size: ${token.fontSizeSM}px;
@@ -18,7 +18,7 @@ const useStyle = createStyles(({ token, css, cx }) => {
 
   // 是否调休
   const isRestAdjustment = css`
-    .ant-badge-count {
+    .${prefixCls}-badge-count {
       color: ${token.colorPrimary};
       background: transparent;
       box-shadow: none;
@@ -27,7 +27,7 @@ const useStyle = createStyles(({ token, css, cx }) => {
 
   // 是否加班
   const isOvertime = css`
-    .ant-badge-count {
+    .${prefixCls}-badge-count {
       color: ${token.colorWarning};
       background: transparent;
       box-shadow: none;
@@ -38,15 +38,22 @@ const useStyle = createStyles(({ token, css, cx }) => {
     display: flex;
     flex-direction: row;
     align-item: center;
-    justify-content: space-between;
+    padding-bottom: 5px;
   `;
 
-  return {
+  const styles = {
     wrapper: css`
       width: 450px;
-      border: 1px solid ${token.colorBorderSecondary};
-      border-radius: ${token.borderRadiusOuter}px;
+      border: 2px solid ${token.colorPrimary};
       padding: 5px;
+      .${prefixCls}-picker-calendar {
+        .${prefixCls}-picker-date-panel .${prefixCls}-picker-content th {
+          padding-bottom: ${token.paddingXS}px;
+        }
+        .${prefixCls}-picker-cell {
+          border-top: 1px solid ${token.colorBorderSecondary};
+        }
+      }
     `,
     dateCell: css`
       position: relative;
@@ -120,6 +127,8 @@ const useStyle = createStyles(({ token, css, cx }) => {
     header,
     gray,
   };
+
+  return styles;
 });
 
 export { useStyle };

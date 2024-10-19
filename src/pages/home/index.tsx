@@ -11,7 +11,7 @@ interface BlockItem {
 const blocks: BlockItem[] = [
   {
     name: 'calendar',
-    title: 'Calendar 日历',
+    title: '万年历',
     path: '/calendar',
   },
   {

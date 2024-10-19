@@ -1,6 +1,6 @@
 import React from 'react';
-import { Calendar as AntdCalendar, Badge, Button } from 'antd';
-import type { CalendarProps } from 'antd';
+import { Calendar as AntdCalendar, Badge, Button, Select, Space } from 'antd';
+import type { CalendarProps, SelectProps } from 'antd';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
@@ -13,6 +13,7 @@ const Calendar: React.FC = () => {
 
   const [selectDate, setSelectDate] = React.useState<Dayjs>(dayjs());
   const [panelDateDate, setPanelDate] = React.useState<Dayjs>(dayjs());
+  const [selectedHoliday, setSelectedHoliday] = React.useState<Dayjs>();
 
   const onPanelChange = (value: Dayjs, mode: CalendarProps<Dayjs>['mode']) => {
     console.log(value.format('YYYY-MM-DD'), mode);
@@ -89,26 +90,174 @@ const Calendar: React.FC = () => {
     return info.originNode;
   };
 
-  const headerRender: CalendarProps<Dayjs>['headerRender'] = ({ value, type, onChange }) => {
-    const currentYear = value.format('YYYY年');
-    const currentMonth = value.format('M月');
+  const headerYearRender: CalendarProps<Dayjs>['headerRender'] = ({ value, onChange }) => {
+    const year = value.year();
+    const minYear = year - 10;
+    const maxYear = year + 10;
+    const options = [];
+    for (let i = minYear; i <= maxYear; i++) {
+      options.push({
+        value: i,
+        label: `${i}年`,
+      });
+    }
+
     const next = () => {
-      const newValue = value.clone().add(1, type === 'year' ? 'year' : 'months');
+      const newValue = value.clone().add(1, 'year');
       onChange(newValue);
     };
     const prev = () => {
-      const newValue = value.clone().subtract(1, type === 'year' ? 'year' : 'months');
+      const newValue = value.clone().subtract(1, 'year');
       onChange(newValue);
     };
 
     return (
+      <span>
+        <Button size="small" color="primary" variant="filled" icon={<LeftOutlined />} disabled={year <= minYear} onClick={() => prev()} />
+        <Select
+          size="small"
+          variant="borderless"
+          value={year}
+          popupMatchSelectWidth={false}
+          options={options}
+          onChange={(newYear) => {
+            const now = value.clone().year(newYear);
+            onChange(now);
+          }}
+        />
+        <Button
+          size="small"
+          color="primary"
+          variant="filled"
+          icon={<RightOutlined />}
+          disabled={year >= maxYear}
+          onClick={() => next()}
+        />
+      </span>
+    );
+  };
+
+  const headerMonthRender: CalendarProps<Dayjs>['headerRender'] = ({ value, onChange }) => {
+    let current = value.clone();
+    const month = value.month();
+    const localeData = value.localeData();
+    const minMonth = 0;
+    const maxMonth = 12;
+    const months = [];
+    for (let i = minMonth; i < maxMonth; i++) {
+      current = current.month(i);
+      months.push(localeData.monthsShort(current));
+    }
+    const options = [];
+    for (let i = minMonth; i < maxMonth; i++) {
+      current = current.month(i);
+      options.push({
+        value: i,
+        label: months[i],
+      });
+    }
+
+    const next = () => {
+      const newValue = value.clone().add(1, 'months');
+      onChange(newValue);
+    };
+    const prev = () => {
+      const newValue = value.clone().subtract(1, 'months');
+      onChange(newValue);
+    };
+
+    return (
+      <span>
+        <Button
+          size="small"
+          color="primary"
+          variant="filled"
+          icon={<LeftOutlined />}
+          disabled={month <= minMonth}
+          onClick={() => prev()}
+        />
+        <Select
+          size="small"
+          variant="borderless"
+          value={month}
+          popupMatchSelectWidth={false}
+          options={options}
+          onChange={(newMonth) => {
+            const now = value.clone().month(newMonth);
+            onChange(now);
+          }}
+        />
+        <Button
+          size="small"
+          color="primary"
+          variant="filled"
+          icon={<RightOutlined />}
+          disabled={month >= maxMonth}
+          onClick={() => next()}
+        />
+      </span>
+    );
+  };
+
+  const headerHolidayRender: CalendarProps<Dayjs>['headerRender'] = ({ value, onChange }) => {
+    const year = value.year();
+    const options: SelectProps['options'] = [];
+    const holidays = HolidayUtil.getHolidays(year);
+    holidays.forEach((h) => {
+      if (h.getTarget() === h.getDay()) {
+        options.push({
+          value: h.getDay(),
+          label: h.getName(),
+        });
+      }
+    });
+    // console.log(selectedHoliday?.format('YYYY-MM-DD') , ' headerHolidayRender ===>')
+    const selectedHolidayOfDay = selectedHoliday ? selectedHoliday.format('YYYY-MM-DD') : '';
+    return (
+      <Select
+        size="small"
+        variant="borderless"
+        value={selectedHolidayOfDay}
+        popupMatchSelectWidth={false}
+        options={options}
+        placeholder="假日安排"
+        onChange={(newDate: string) => {
+          const now = dayjs(newDate);
+          onChange(now);
+          console.log(now.get('date'), ' 逗比');
+          setSelectedHoliday(now);
+        }}
+      />
+    );
+  };
+
+  const headerTodayRender: CalendarProps<Dayjs>['headerRender'] = ({ onChange }) => {
+    return (
       <div className={styles.header}>
-        <Button size="small" type="text" icon={<LeftOutlined />} onClick={() => prev()} />
-        <div>
-          <span>{currentYear} </span>
-          <span>{currentMonth}</span>
-        </div>
-        <Button size="small" type="text" icon={<RightOutlined />} onClick={() => next()} />
+        <Button
+          size="small"
+          color="primary"
+          variant="filled"
+          onClick={() => {
+            const now = dayjs();
+            onChange(now);
+          }}
+        >
+          返回今天
+        </Button>
+      </div>
+    );
+  };
+
+  const headerRender: CalendarProps<Dayjs>['headerRender'] = ({ value, type, onChange }) => {
+    return (
+      <div className={styles.header}>
+        <Space>
+          {headerYearRender({ value, onChange })}
+          {headerMonthRender({ value, onChange })}
+          {headerHolidayRender({ value, onChange })}
+          {headerTodayRender({ onChange })}
+        </Space>
       </div>
     );
   };

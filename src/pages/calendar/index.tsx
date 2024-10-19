@@ -3,7 +3,7 @@ import PageContainer from 'components/page-container';
 
 function CalendarPage() {
   return (
-    <PageContainer header={{ title: '日历' }}>
+    <PageContainer header={{ title: '万年历' }}>
       <Calendar />
     </PageContainer>
   );
