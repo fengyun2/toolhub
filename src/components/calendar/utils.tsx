@@ -19,18 +19,18 @@ const useStyle = createStyles(({ token, css, cx, prefixCls }) => {
   // 是否调休
   const isRestAdjustment = css`
     .${prefixCls}-badge-count {
-      color: ${token.colorPrimary};
-      background: transparent;
-      box-shadow: none;
+      color: ${token.colorPrimary} !important;
+      background: transparent !important;
+      box-shadow: none !important;
     }
   `;
 
   // 是否加班
   const isOvertime = css`
     .${prefixCls}-badge-count {
-      color: ${token.colorWarning};
-      background: transparent;
-      box-shadow: none;
+      color: ${token.colorWarning} !important;
+      background: transparent !important;
+      box-shadow: none !important;
     }
   `;
 

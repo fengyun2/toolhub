@@ -4,6 +4,7 @@ import 'dayjs/locale/zh-cn';
 import dayjs from 'dayjs';
 import 'antd/dist/reset.css';
 import { BrowserRouter } from 'react-router-dom';
+import { legacyLogicalPropertiesTransformer, StyleProvider } from '@ant-design/cssinjs';
 import Router from './router';
 
 dayjs.locale('zh-cn');
@@ -11,9 +12,11 @@ dayjs.locale('zh-cn');
 function App() {
   return (
     <BrowserRouter>
-      <ConfigProvider locale={zhCN}>
-        <Router />
-      </ConfigProvider>
+      <StyleProvider hashPriority='high' transformers={[legacyLogicalPropertiesTransformer]}>
+        <ConfigProvider locale={zhCN}>
+          <Router />
+        </ConfigProvider>
+      </StyleProvider>
     </BrowserRouter>
   );
 }
