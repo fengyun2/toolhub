@@ -23,6 +23,11 @@ const blocks: BlockItem[] = [
     name: 'rgb-to-hex',
     title: '颜色代码转换',
     path: '/color/rgb-to-hex',
+  },
+  {
+    name: 'image-compress',
+    title: '图片压缩',
+    path: '/image/compress',
   }
 ];
 

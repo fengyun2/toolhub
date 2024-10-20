@@ -6,6 +6,7 @@ import CalendarPage from '@/pages/calendar';
 import AboutPage from '@/pages/about';
 import NotFoundPage from '@/pages/other/404';
 import RGBToHexPage from '@/pages/color/rgb-to-hex';
+import ImageCompressPage from '@/pages/image/compress';
 
 const routes: RouteObject[] = [
   {
@@ -27,6 +28,10 @@ const routes: RouteObject[] = [
       {
         path: '/color/rgb-to-hex',
         element: <RGBToHexPage />,
+      },
+      {
+        path: '/image/compress',
+        element: <ImageCompressPage />,
       },
       {
         path: '*',
