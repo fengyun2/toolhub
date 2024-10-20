@@ -19,6 +19,11 @@ const blocks: BlockItem[] = [
     title: '关于',
     path: '/about',
   },
+  {
+    name: 'rgb-to-hex',
+    title: '颜色代码转换',
+    path: '/color/rgb-to-hex',
+  }
 ];
 
 function HomePage() {
