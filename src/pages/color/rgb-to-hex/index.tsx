@@ -154,11 +154,18 @@ function RGBToHexPage() {
     return (
       <Space.Compact block>
         <Text className={styles.presetsLabel}>示例输入: &nbsp;&nbsp;</Text>
-        {colorPresets.map((preset) => (
-          <Tag key={preset.color} color={preset.color} className={preset.className} onClick={() => preset.onClick?.(preset.color)}>
-            {preset.color}
-          </Tag>
-        ))}
+        <div>
+          {colorPresets.map((preset) => (
+            <Tag
+              key={preset.color}
+              color={preset.color}
+              className={preset.className}
+              onClick={() => preset.onClick?.(preset.color)}
+            >
+              {preset.color}
+            </Tag>
+          ))}
+        </div>
       </Space.Compact>
     );
   };

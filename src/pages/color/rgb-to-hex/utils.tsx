@@ -9,7 +9,8 @@ type Color = GetProp<ColorPickerProps, 'value'>;
 type ColorFormat = ColorPickerProps['format'];
 type ColorType = 'hex' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva' | 'cmyk';
 
-const genPresets = (presets = presetPalettes) => Object.entries(presets).map<Presets>(([label, colors]) => ({ label, colors }));
+const genPresets = (presets = presetPalettes) =>
+  Object.entries(presets).map<Presets>(([label, colors]) => ({ label, colors }));
 const usePresets = () => {
   const { token } = theme.useToken();
   const presets = genPresets({ primary: generate(token.colorPrimary), red, green });
@@ -30,7 +31,7 @@ const useStyle = createStyles(({ css }) => {
     presetsItem: css`
       font-size: 14px !important;
       line-height: 28px !important;
-    `
+    `,
   };
 
   return styles;
@@ -40,7 +41,7 @@ const colorFormatFuncs = {
   rgb: 'toRgbString',
   hex: 'toHexString',
   hsb: 'toHsbString',
-}
+};
 
 /**
  * 转为string格式的字符串
@@ -50,12 +51,12 @@ const colorFormatFuncs = {
  */
 const getColorString = (color: Color, colorFormat?: ColorFormat): string => {
   if (typeof color === 'string') {
-    return color
+    return color;
   }
   if (!colorFormat) {
-    return color as unknown as string
+    return color as unknown as string;
   }
-  const func = colorFormatFuncs[colorFormat]
+  const func = colorFormatFuncs[colorFormat];
   if (func && (color as any)[func]) {
     return (color as any)[func]?.();
   }
@@ -84,7 +85,7 @@ const convertColor = (color: string, targetFormat: ColorType): string => {
         return color;
     }
   }
-  return ''
+  return '';
 };
 
 export { usePresets, useStyle, getColorString, convertColor };
