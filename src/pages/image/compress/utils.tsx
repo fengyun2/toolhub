@@ -1,5 +1,6 @@
 // import pica from 'pica';
 import compressorjs from 'compressorjs';
+import imageCompression from 'browser-image-compression';
 import { filesize } from 'filesize';
 import JSZip from 'jszip';
 import FileSaver from 'file-saver';
@@ -56,12 +57,12 @@ const getBlobDimensions = (blob: Blob): Promise<{ width: number; height: number 
 };
 
 /**
- * 压缩图片
+ * 压缩图片-Compressor.js
  * @param {UploadFile} file
  * @param {number} compressionRate 压缩率
  * @returns
  */
-const compressedImage = async (file: UploadFile, compressionRate: number): Promise<UploadFile> => {
+const compressedImageByCompressor = async (file: UploadFile, compressionRate: number): Promise<UploadFile> => {
   return new Promise((resolve, reject) => {
     new compressorjs(file as any as File, {
       quality: compressionRate / 100,
@@ -77,6 +78,34 @@ const compressedImage = async (file: UploadFile, compressionRate: number): Promi
         reject(error);
       },
     });
+  });
+};
+
+/**
+ * 压缩图片2-browser-image-compression
+ * @param {UploadFile} file
+ * @param {number} compressionRate 压缩率
+ * @returns
+ */
+const compressImageByImageCompression = async (file: UploadFile, compressionRate: number): Promise<UploadFile> => {
+  return new Promise((resolve, reject) => {
+    const options = {
+      maxSizeMB: Infinity, // 不限制文件大小
+      maxWidthOrHeight: Infinity, // 不改变图形尺寸
+      initialQuality: compressionRate / 100, // 设置图像质量，范围是 0 到 1
+      useWebWorker: true, // 使用 Web Worker 进行压缩
+      libURL: '/js/browser-image-compression.js',
+    };
+    imageCompression(file as any as File, options)
+      .then((compressedBlob) => {
+        const compressedFile: UploadFile = new File([compressedBlob], file.name, {
+          type: file.type,
+          lastModified: Date.now(),
+        }) as any as UploadFile;
+        compressedFile.uid = file.uid;
+        resolve(compressedFile);
+      })
+      .catch((error) => reject(error));
   });
 };
 
@@ -121,6 +150,15 @@ const batchDownloadFile = (files: File[], fileName?: string) => {
  */
 const checkImage = (file: UploadFile | File): boolean => {
   return !!file.type?.startsWith('image/');
-}
+};
 
-export { useStyle, getBlobDimensions, compressedImage, formatFileSize, downloadFile, batchDownloadFile, checkImage };
+export {
+  useStyle,
+  getBlobDimensions,
+  compressedImageByCompressor,
+  compressImageByImageCompression,
+  formatFileSize,
+  downloadFile,
+  batchDownloadFile,
+  checkImage,
+};

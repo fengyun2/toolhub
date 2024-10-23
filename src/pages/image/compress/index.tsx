@@ -2,7 +2,7 @@
  * 图片压缩
  */
 import { useState, useContext, useEffect } from 'react';
-import type { UploadFile, UploadProps, TableProps } from 'antd';
+import type { UploadFile, UploadProps, TableProps, SelectProps } from 'antd';
 import {
   Upload,
   Button,
@@ -15,15 +15,23 @@ import {
   theme,
   Image,
   Modal,
-  Divider,
   Row,
   Col,
   ConfigProvider,
+  Select,
 } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import Big from 'big.js';
 import PageContainer from 'components/page-container';
-import { useStyle, compressedImage, formatFileSize, downloadFile, batchDownloadFile, checkImage } from './utils';
+import {
+  useStyle,
+  compressedImageByCompressor,
+  compressImageByImageCompression,
+  formatFileSize,
+  downloadFile,
+  batchDownloadFile,
+  checkImage,
+} from './utils';
 
 const { Text } = Typography;
 const { Dragger } = Upload;
@@ -38,12 +46,29 @@ interface DataType extends UploadFile {
   optimizationRate: string;
 }
 
+type CompressedMethod = 'browser-image-compression' | 'Compressor';
+const compressedMethodOptions: SelectProps<CompressedMethod>['options'] = [
+  {
+    label: 'Browser Image Compression',
+    value: 'browser-image-compression',
+  },
+  {
+    label: 'Compressor.js',
+    value: 'Compressor',
+  },
+];
+const compressedImageFuncs = {
+  'browser-image-compression': compressImageByImageCompression,
+  Compressor: compressedImageByCompressor,
+};
+
 function ImageCompressPage() {
   const [messageApi, contextHolder] = message.useMessage();
   const { token } = theme.useToken();
   const { styles } = useStyle({ test: true });
   const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
   const uploadPrefixCls = getPrefixCls('upload');
+  const [compressedMethod, setCompressedMethod] = useState<CompressedMethod>('browser-image-compression');
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [compressedFileList, setCompressedFileList] = useState<UploadFile[]>([]);
   const [compressionRate, setCompressionRate] = useState<number>(80);
@@ -118,7 +143,8 @@ function ImageCompressPage() {
   const [data, setData] = useState<DataType[]>([]);
 
   async function startCompressedImage(file: UploadFile, nextCompressionRate?: number) {
-    const compressedFile = await compressedImage(file, nextCompressionRate ?? compressionRate);
+    const compressedImageFunc = compressedImageFuncs[compressedMethod];
+    const compressedFile = await compressedImageFunc(file, nextCompressionRate ?? compressionRate);
     setCompressedFileList((prevCompressedFileList) => [...prevCompressedFileList, compressedFile]);
     // 使用big.js进行计算
     const fileSize = new Big(file.size || 0);
@@ -136,15 +162,27 @@ function ImageCompressPage() {
     setData((prevData) => [...prevData, newCompressionFile]);
   }
 
+  /**
+   * 重新执行压缩
+   * @param {number} nextCompressionRate 压缩率 0-100
+   */
+  async function restartCompressedImageList(nextCompressionRate?: number) {
+    // 清空文件列表
+    setData([]);
+    setCompressedFileList([]);
+    fileList.forEach((file) => startCompressedImage(file, nextCompressionRate));
+  }
+
   function onChangeCompressionRate(nextCompressionRate: number) {
     setCompressionRate(nextCompressionRate);
   }
 
   function onChangeCompleteCompressionRate(newCompressionRate: number) {
+    restartCompressedImageList(newCompressionRate);
     // 清空文件列表
-    setData([]);
-    setCompressedFileList([]);
-    fileList.forEach((file) => startCompressedImage(file, newCompressionRate));
+    // setData([]);
+    // setCompressedFileList([]);
+    // fileList.forEach((file) => startCompressedImage(file, newCompressionRate));
   }
 
   const uploadProps: UploadProps = {
@@ -238,11 +276,39 @@ function ImageCompressPage() {
             <Tag color={token.colorSuccess}>{compressionRate}%</Tag>
             <Text>（压缩率越大，压缩后的图片越小，同时压缩后的图片越模糊）</Text>
           </div>
-          {compressedFileList.length > 0 && (
-            <Button type="primary" onClick={() => batchDownloadFile(compressedFileList as any as File[])}>
-              批量下载
+          <div>
+            <span>
+              <Text>压缩方法: &nbsp;&nbsp;</Text>
+              <Select
+                size="small"
+                variant="borderless"
+                popupMatchSelectWidth={false}
+                value={compressedMethod}
+                options={compressedMethodOptions}
+                onChange={(value) => {
+                  setCompressedMethod(value);
+                  restartCompressedImageList();
+                }}
+              />
+            </span>
+            {compressedFileList.length > 0 && (
+              <Button type="primary" onClick={() => batchDownloadFile(compressedFileList as any as File[])}>
+                批量下载
+              </Button>
+            )}
+            <Button
+              danger
+              onClick={() => {
+                // 清空文件列表
+                setData([]);
+                setFileList([])
+                setCompressedFileList([]);
+              }}
+            >
+              全部清空
             </Button>
-          )}
+          </div>
+
           <Table<DataType> rowKey="uid" dataSource={data} columns={columns} size="small" pagination={false} />
         </Space>
       </div>
