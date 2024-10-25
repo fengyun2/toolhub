@@ -1,12 +1,19 @@
+import { lazy,Suspense } from 'react';
 import type { RouteObject } from 'react-router-dom';
 import { useRoutes } from 'react-router-dom';
 import DefaultLayout from '@/layout/default';
-import HomePage from '@/pages/home';
-import CalendarPage from '@/pages/calendar';
-import AboutPage from '@/pages/about';
-import NotFoundPage from '@/pages/other/404';
-import RGBToHexPage from '@/pages/color/rgb-to-hex';
-import ImageCompressPage from '@/pages/image/compress';
+// import HomePage from '@/pages/home';
+// import CalendarPage from '@/pages/calendar';
+// import AboutPage from '@/pages/about';
+// import NotFoundPage from '@/pages/other/404';
+// import RGBToHexPage from '@/pages/color/rgb-to-hex';
+// import ImageCompressPage from '@/pages/image/compress';
+const HomePage = lazy(() => import('@/pages/home'));
+const CalendarPage = lazy(() => import('@/pages/calendar'));
+const AboutPage = lazy(() => import('@/pages/about'));
+const RGBToHexPage = lazy(() => import('@/pages/color/rgb-to-hex'));
+const ImageCompressPage = lazy(() => import('@/pages/image/compress'));
+const NotFoundPage = lazy(() => import('@/pages/other/404'));
 
 const routes: RouteObject[] = [
   {
@@ -43,7 +50,11 @@ const routes: RouteObject[] = [
 
 function Router() {
   const element = useRoutes(routes);
-  return <>{element}</>;
+  return (
+    <Suspense fallback={null}>
+      {element}
+    </Suspense>
+  );
 }
 
 export default Router;
