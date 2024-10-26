@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Input, Button, message } from 'antd';
+import type { TextAreaProps } from 'antd/lib/input';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useStyle } from './util';
 
-interface TextareaWithCopyProps {
+// interface TextareaWithCopyProps extends Omit<TextAreaProps, 'onChange'> {
+interface TextareaWithCopyProps extends TextAreaProps {
   value?: string;
-  onChange?: (value: string) => void;
+  // onChange?: (value: string) => void;
 }
 
-const TextareaWithCopy = ({ value: formValue, onChange: formChange }: TextareaWithCopyProps) => {
+const TextareaWithCopy = ({ value: formValue, onChange: formChange, placeholder }: TextareaWithCopyProps) => {
   const { styles } = useStyle({ test: true });
   const [messageApi, contextHolder] = message.useMessage();
   // 如果组件被 Form 包裹，则使用 Form 的 value，否则使用内部状态
@@ -28,12 +30,12 @@ const TextareaWithCopy = ({ value: formValue, onChange: formChange }: TextareaWi
     });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange: TextAreaProps['onChange'] = (e) => {
     const newValue = e.target.value;
     setValue(newValue);
     // 如果组件被Form包裹，则调用Form的onChange
     if (formChange) {
-      formChange(newValue);
+      formChange(e);
     }
   };
 
@@ -49,7 +51,7 @@ const TextareaWithCopy = ({ value: formValue, onChange: formChange }: TextareaWi
   return (
     <div className={styles.wrapper}>
       {contextHolder}
-      <Input.TextArea value={value} onChange={handleChange} autoSize={{ minRows: 1, maxRows: 60 }} />
+      <Input.TextArea value={value} onChange={handleChange} autoSize={{ minRows: 1, maxRows: 60 }} placeholder={placeholder} />
       <CopyToClipboard text={value!} onCopy={onCopy}>
         <Button color="primary" variant="filled" size="small" className={styles.copyBtn}>
           复制

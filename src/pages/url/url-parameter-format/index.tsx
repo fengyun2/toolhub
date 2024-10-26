@@ -2,14 +2,16 @@
  * URL参数格式化
  */
 import { useState, useMemo } from 'react';
-import { Space, Typography, Select, Table, Input, Button, Tooltip, message } from 'antd';
-import type { TableProps, SelectProps } from 'antd';
+import { Space, Typography, Select, Table, Input, Button, Tabs, Tooltip, message } from 'antd';
+import type { TableProps, SelectProps, TabsProps } from 'antd';
+import type { TextAreaProps } from 'antd/lib/input';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PageContainer from 'components/page-container';
 import TextareaWithCopy from 'components/TextareaWithCopy';
 import { extractParamsFromUrl } from '@/utils/utils';
 
 const { Text } = Typography;
+const { TabPane } = Tabs;
 
 type EncodingValue = 'UTF-8' | 'GBK';
 interface Result {
@@ -57,6 +59,7 @@ function UrlParameterFormatPage() {
   const [encoding, setEncoding] = useState('UTF-8');
   const [url, setUrl] = useState<string>('');
   const [result, setResult] = useState<Result[]>([]);
+  const [resultType, setResultType] = useState<'table' | 'json'>('table');
 
   const success = (message: string) => {
     messageApi.open({
@@ -78,7 +81,8 @@ function UrlParameterFormatPage() {
     setResult(parseResult?.params ?? []);
   };
 
-  const onValueChange = (newValue: string) => {
+  const onValueChange: TextAreaProps['onChange'] = (e) => {
+    const newValue = e.target.value;
     setValue(newValue);
     parseUrl(newValue);
   };
@@ -95,6 +99,40 @@ function UrlParameterFormatPage() {
       error('复制失败');
     }
   };
+
+  const onTabChange = (key: string) => {
+    setResultType(key as 'table' | 'json');
+  };
+
+  const copyJsonText = useMemo(() => {
+    const obj = result.reduce((acc, item) => {
+      acc[item.key] = item.value;
+      return acc;
+    }, {} as Record<string, string>);
+
+    return JSON.stringify(obj, null, 2);
+  }, [result]);
+
+  const tabsItems: TabsProps['items'] = [
+    {
+      key: 'table',
+      label: '表格格式',
+      children: (
+        <div>
+          <Table size="small" columns={columns} dataSource={result} pagination={false} bordered />
+        </div>
+      ),
+    },
+    {
+      key: 'json',
+      label: 'JSON 格式',
+      children: (
+        <div>
+          <pre style={{ backgroundColor: '#fafafa', margin: 0, padding: 8 }}>{copyJsonText}</pre>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <PageContainer header={{ title: 'URL参数格式化' }}>
@@ -120,19 +158,19 @@ function UrlParameterFormatPage() {
           <Button>URL</Button>
           <Input value={url} readOnly />
           <CopyToClipboard text={url} onCopy={onCopy}>
-            <Button color="primary" variant="outlined">复制</Button>
+            <Button color="primary" variant="outlined">
+              复制
+            </Button>
           </CopyToClipboard>
         </Space.Compact>
         <div>
-          <CopyToClipboard text={copyText} onCopy={onCopy}>
+          <CopyToClipboard text={resultType === 'table' ? copyText : copyJsonText} onCopy={onCopy}>
             <Button color="primary" variant="outlined">
               复制键值
             </Button>
           </CopyToClipboard>
         </div>
-        <div>
-          <Table size="small" columns={columns} dataSource={result} pagination={false} />
-        </div>
+        <Tabs activeKey={resultType} items={tabsItems} onChange={onTabChange} />
       </Space>
     </PageContainer>
   );
