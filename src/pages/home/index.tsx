@@ -28,7 +28,12 @@ const blocks: BlockItem[] = [
     name: 'image-compress',
     title: '图片压缩',
     path: '/image/compress',
-  }
+  },
+  {
+    name: 'url-parameter-format',
+    title: 'URL参数格式化',
+    path: '/url/url-parameter-format',
+  },
 ];
 
 function HomePage() {
