@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Button, List, Typography, Input, Space } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import PageContainer from 'components/page-container';
 import { getClipboardHistoryList, updateClipboardHistoryItem, removeClipboardHistoryItem } from '@/plugins/clipboard';
+import { useStyle } from './utils';
 
 const MAX_COUNT = 100; // 最多一次展示 100 条记录
 
 function ClipboardPage() {
+  const { styles } = useStyle({ test: true });
   // 过滤后的剪切板记录
   const [clipboardHistoryList, setClipboardHistoryList] = useState<Array<string>>([]);
   const [keyword, setKeyword] = useState<string>('');
@@ -44,7 +47,7 @@ function ClipboardPage() {
       <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
         <Space.Compact block>
           <Input value={keyword} onChange={(event) => setKeyword(event.target.value)} />
-          <Button color="primary" variant="outlined" onClick={filterClipboard}>
+          <Button type="primary" onClick={filterClipboard}>
             搜索
           </Button>
         </Space.Compact>
@@ -55,22 +58,28 @@ function ClipboardPage() {
           loadMore={loadMore}
           dataSource={clipboardHistoryList}
           renderItem={(item, index) => (
-            <List.Item>
+            <List.Item className={styles.item}>
               <Typography.Text
+                className={styles.title}
                 copyable
                 ellipsis
-                editable={{ text: item, onChange: (value) => updateClipboardHistoryItem(index, value) }}
+                editable={{
+                  autoSize: { minRows: 1, maxRows: 10 },
+                  text: item,
+                  onChange: (value) => updateClipboardHistoryItem(index, value),
+                }}
               >
                 {item}
               </Typography.Text>
-              <Button
+              <DeleteOutlined onClick={() => removeClipboardHistoryItem(index)} />
+              {/* <Button
                 style={{ marginLeft: 8 }}
                 color="danger"
                 variant="text"
                 onClick={() => removeClipboardHistoryItem(index)}
               >
                 删除
-              </Button>
+              </Button> */}
             </List.Item>
           )}
         />

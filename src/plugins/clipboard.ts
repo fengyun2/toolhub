@@ -52,6 +52,7 @@ function watchClipboard() {
       // 从剪切板读取内容
       const clipboardText = await readText()
       if (clipboardText && clipboardText !== lastClipboardContent && clipboardText.trim().length > 0) {
+        lastClipboardContent = clipboardText;
         // 将剪贴板内容存储在localStorage
         addClipboardHistory(clipboardText)
       }
