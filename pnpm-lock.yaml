@@ -29,6 +29,9 @@ importers:
       '@tauri-apps/plugin-clipboard-manager':
         specifier: ^2.0.0
         version: 2.0.0
+      '@tauri-apps/plugin-global-shortcut':
+        specifier: ~2
+        version: 2.0.0
       '@tauri-apps/plugin-shell':
         specifier: ^2
         version: 2.0.0
@@ -775,6 +778,9 @@ packages:
 
   '@tauri-apps/plugin-clipboard-manager@2.0.0':
     resolution: {integrity: sha512-V1sXmbjnwfXt/r48RJMwfUmDMSaP/8/YbH4CLNxt+/sf1eHlIP8PRFdFDQwLN0cNQKu2rqQVbG/Wc/Ps6cDUhw==}
+
+  '@tauri-apps/plugin-global-shortcut@2.0.0':
+    resolution: {integrity: sha512-pnB4CUwFVjg4twtBSxoLJ4uLFTYxsvOdC1zIbG581pYzhYatOl6mjB+ijD5SSXgiS/jNoqMcfkOF9PWAisurew==}
 
   '@tauri-apps/plugin-shell@2.0.0':
     resolution: {integrity: sha512-OpW2+ycgJLrEoZityWeWYk+6ZWP9VyiAfbO+N/O8VfLkqyOym8kXh7odKDfINx9RAotkSGBtQM4abyKfJDkcUg==}
@@ -2318,6 +2324,10 @@ snapshots:
       '@tauri-apps/cli-win32-x64-msvc': 2.0.3
 
   '@tauri-apps/plugin-clipboard-manager@2.0.0':
+    dependencies:
+      '@tauri-apps/api': 2.0.2
+
+  '@tauri-apps/plugin-global-shortcut@2.0.0':
     dependencies:
       '@tauri-apps/api': 2.0.2
 
