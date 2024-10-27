@@ -6,7 +6,7 @@ import 'antd/dist/reset.css';
 import { BrowserRouter } from 'react-router-dom';
 import { legacyLogicalPropertiesTransformer, StyleProvider } from '@ant-design/cssinjs';
 import Router from './router';
-import './plugins/global-shortcut'
+import './plugins/clipboard'
 
 dayjs.locale('zh-cn');
 
