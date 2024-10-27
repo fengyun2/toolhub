@@ -14,6 +14,7 @@ const AboutPage = lazy(() => import('@/pages/about'));
 const RGBToHexPage = lazy(() => import('@/pages/color/rgb-to-hex'));
 const ImageCompressPage = lazy(() => import('@/pages/image/compress'));
 const UrlParameterFormatPage = lazy(() => import('@/pages/url/url-parameter-format'));
+const ClipboardPage = lazy(() => import('@/pages/clipboard'));
 const NotFoundPage = lazy(() => import('@/pages/other/404'));
 
 const routes: RouteObject[] = [
@@ -44,6 +45,10 @@ const routes: RouteObject[] = [
       {
         path: '/url/url-parameter-format',
         element: <UrlParameterFormatPage />,
+      },
+      {
+        path: '/clipboard',
+        element: <ClipboardPage />,
       },
       {
         path: '*',

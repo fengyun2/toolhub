@@ -34,6 +34,11 @@ const blocks: BlockItem[] = [
     title: 'URL参数格式化',
     path: '/url/url-parameter-format',
   },
+  {
+    name: 'clipboard',
+    title: '剪贴板工具',
+    path: '/clipboard',
+  }
 ];
 
 function HomePage() {
