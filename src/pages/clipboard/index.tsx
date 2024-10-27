@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, List, Typography, Input, Space } from 'antd';
+import { Button, List, Typography, Input, Space, theme } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import PageContainer from 'components/page-container';
 import { getClipboardHistoryList, updateClipboardHistoryItem, removeClipboardHistoryItem } from '@/plugins/clipboard';
@@ -9,9 +9,11 @@ const MAX_COUNT = 100; // 最多一次展示 100 条记录
 
 function ClipboardPage() {
   const { styles } = useStyle({ test: true });
+  const { token } = theme.useToken();
   // 过滤后的剪切板记录
   const [clipboardHistoryList, setClipboardHistoryList] = useState<Array<string>>([]);
   const [keyword, setKeyword] = useState<string>('');
+  const [totalNum, setTotalNum] = useState<number>(0);
 
   function filterClipboard() {
     const tmpClipboardHistoryList = getClipboardHistoryList();
@@ -19,18 +21,22 @@ function ClipboardPage() {
       .filter((content) => content.includes(keyword))
       .slice(0, MAX_COUNT);
     setClipboardHistoryList(newClipboardHistoryList);
+    const tmpTotalNum = tmpClipboardHistoryList.length;
+    setTotalNum(tmpTotalNum);
   }
 
   function onLoadMore() {
     const tmpClipboardHistoryList = getClipboardHistoryList();
     const appendClipboardHistoryList = tmpClipboardHistoryList
       .filter((content) => content.includes(keyword))
-      .slice(tmpClipboardHistoryList.length, tmpClipboardHistoryList.length + MAX_COUNT);
+      .slice(clipboardHistoryList.length, tmpClipboardHistoryList.length + MAX_COUNT);
     const newClipboardHistoryList = [...clipboardHistoryList, ...appendClipboardHistoryList];
     setClipboardHistoryList(newClipboardHistoryList);
+    const tmpTotalNum = tmpClipboardHistoryList.length;
+    setTotalNum(tmpTotalNum);
   }
 
-  const loadMore = (
+  const loadMore = clipboardHistoryList.length < totalNum && totalNum !== 0 && (
     <div style={{ textAlign: 'center', height: 32, lineHeight: '32px' }}>
       <Button color="primary" variant="filled" onClick={onLoadMore}>
         加载更多
@@ -71,7 +77,14 @@ function ClipboardPage() {
               >
                 {item}
               </Typography.Text>
-              <DeleteOutlined onClick={() => removeClipboardHistoryItem(index)} />
+              <DeleteOutlined
+                style={{ color: token.colorError }}
+                onClick={() => {
+                  removeClipboardHistoryItem(index);
+                  // 删除后，重新查询
+                  filterClipboard();
+                }}
+              />
               {/* <Button
                 style={{ marginLeft: 8 }}
                 color="danger"
