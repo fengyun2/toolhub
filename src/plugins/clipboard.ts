@@ -6,6 +6,8 @@ export const CLIPBOARD_STORAGE_KEY = 'clipboard_history'
 // 使用 localStorage
 const localStorageInstance = new Store();
 
+let lastClipboardContent: string = ''
+
 function getClipboardHistory() {
   return localStorageInstance.getItem<Array<string>>(CLIPBOARD_STORAGE_KEY)
 }
@@ -28,13 +30,28 @@ function addClipboardHistory(text: string) {
   localStorageInstance.setItem(CLIPBOARD_STORAGE_KEY, clipboardHistory)
 }
 
+export function removeClipboardHistoryItem(index: number) {
+  const clipboardHistory = getClipboardHistory() || []
+  clipboardHistory.splice(index, 1)
+  localStorageInstance.setItem(CLIPBOARD_STORAGE_KEY, clipboardHistory)
+}
+export function updateClipboardHistoryItem(index: number, text: string) {
+  const clipboardHistory = getClipboardHistory() || []
+  clipboardHistory[index] = text
+  localStorageInstance.setItem(CLIPBOARD_STORAGE_KEY, clipboardHistory)
+}
+
+export function clearClipboardHistory() {
+  localStorageInstance.removeItem(CLIPBOARD_STORAGE_KEY)
+}
+
 // 监听剪贴板
 function watchClipboard() {
   setInterval(async () => {
     try {
       // 从剪切板读取内容
       const clipboardText = await readText()
-      if (clipboardText) {
+      if (clipboardText && clipboardText !== lastClipboardContent && clipboardText.trim().length > 0) {
         // 将剪贴板内容存储在localStorage
         addClipboardHistory(clipboardText)
       }
